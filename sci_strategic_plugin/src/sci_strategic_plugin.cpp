@@ -39,7 +39,7 @@ SCIStrategicPlugin::SCIStrategicPlugin(carma_wm::WorldModelConstPtr wm, SCIStrat
   : wm_(wm), config_(config)
 {
   plugin_discovery_msg_.name = config_.strategic_plugin_name;
-  plugin_discovery_msg_.versionId = "v1.0";
+  plugin_discovery_msg_.version_id = "v1.0";
   plugin_discovery_msg_.available = true;
   plugin_discovery_msg_.activated = true;
   plugin_discovery_msg_.type = cav_msgs::Plugin::STRATEGIC;
@@ -86,13 +86,13 @@ void SCIStrategicPlugin::mobilityOperationCb(const cav_msgs::MobilityOperationCo
 {
   if (msg->strategy == stop_controlled_intersection_strategy_)
   {
-    ROS_DEBUG_STREAM("Received Schedule message with id: " << msg->header.plan_id);
+    ROS_DEBUG_STREAM("Received Schedule message with id: " << msg->m_header.plan_id);
     approaching_stop_controlled_interction_ = true;
     ROS_DEBUG_STREAM("Approaching Stop Controlled Intersection: " << approaching_stop_controlled_interction_);
 
-    if (msg->header.recipient_id == config_.vehicle_id)
+    if (msg->m_header.recipient_id == config_.vehicle_id)
       {
-        street_msg_timestamp_ = msg->header.timestamp;
+        street_msg_timestamp_ = msg->m_header.timestamp;
         ROS_DEBUG_STREAM("street_msg_timestamp_: " << street_msg_timestamp_);
         parseStrategyParams(msg->strategy_params);
       }
@@ -672,9 +672,9 @@ double SCIStrategicPlugin::findSpeedLimit(const lanelet::ConstLanelet& llt) cons
 cav_msgs::MobilityOperation SCIStrategicPlugin::generateMobilityOperation()
 {
     cav_msgs::MobilityOperation mo_;
-    mo_.header.timestamp = ros::Time::now().toNSec()/1000000;
-    mo_.header.sender_id = config_.vehicle_id;
-    mo_.header.sender_bsm_id = bsm_id_;
+    mo_.m_header.timestamp = ros::Time::now().toNSec()/1000000;
+    mo_.m_header.sender_id = config_.vehicle_id;
+    mo_.m_header.sender_bsm_id = bsm_id_;
     mo_.strategy = stop_controlled_intersection_strategy_;
 
     double vehicle_acceleration_limit_ = config_.vehicle_accel_limit * config_.vehicle_accel_limit_multiplier;
