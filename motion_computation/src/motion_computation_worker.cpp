@@ -26,6 +26,7 @@ MotionComputationWorker::MotionComputationWorker(const PublishObjectCallback& ob
 
 void MotionComputationWorker::predictionLogic(carma_perception_msgs::msg::ExternalObjectList::UniquePtr obj_list) {
   carma_perception_msgs::msg::ExternalObjectList sensor_list;
+  sensor_list.header = obj_list->header;
 
   for (auto obj : obj_list->objects) {
     // Header contains the frame rest of the fields will use
@@ -68,7 +69,8 @@ void MotionComputationWorker::predictionLogic(carma_perception_msgs::msg::Extern
 
   //// Synchronize all data to the current sensor data timestamp
   carma_perception_msgs::msg::ExternalObjectList synchronization_base_objects;
-  synchronization_base_objects.header.stamp = sensor_list.header.stamp; // Use the current sensing stamp as the sync point even if sensor data is not used
+  synchronization_base_objects.header = sensor_list.header; // Use the current sensing stamp as the sync point even if sensor data is not used
+
 
   if (enable_sensor_processing_) { // If using sensor data add it to the base synchronization list since it already is at the desired time
 
@@ -86,8 +88,11 @@ void MotionComputationWorker::predictionLogic(carma_perception_msgs::msg::Extern
 
     obj_pub_(synchronization_base_objects);
     bsm_list_.objects.clear();
+    bsm_obj_id_map_.clear();
     psm_list_.objects.clear();
+    psm_obj_id_map_.clear();
     mobility_path_list_.objects.clear();
+    mobility_path_obj_id_map_.clear();
 
     return;
   }
@@ -109,11 +114,13 @@ void MotionComputationWorker::predictionLogic(carma_perception_msgs::msg::Extern
   }
 
   obj_pub_(synchronization_base_objects);
-
-  // Clear mobility msg path queue since it is published
+  // Clear msg queue since it is published
   mobility_path_list_.objects.clear();
+  mobility_path_obj_id_map_.clear();
   bsm_list_.objects.clear();
+  bsm_obj_id_map_.clear();
   psm_list_.objects.clear();
+  psm_obj_id_map_.clear();
 }
 
 void MotionComputationWorker::georeferenceCallback(const std_msgs::msg::String::UniquePtr msg) {
