@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (C) 2022 LEIDOS.
  *
@@ -14,21 +16,27 @@
  * the License.
  */
 
-#include "rclcpp/rclcpp.hpp"
-#include "plan_delegator.hpp"
+#include <iostream>
+#include <vector>
 
-// Main entry point for plan delegator
-int main(int argc, char** argv)
+namespace guidance
 {
-  rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<plan_delegator::PlanDelegator>(rclcpp::NodeOptions());
-  
-  rclcpp::executors::MultiThreadedExecutor executor;
-  executor.add_node(node->get_node_base_interface());
-  executor.spin();
+  /**
+   * \brief Stuct containing the algorithm configuration values for GuidanceWorker
+   */
+  struct Config
+  {
+    double spin_rate_hz = 10.0; // (Hz) The rate at which the Guidance Node will process messages
 
-  rclcpp::shutdown();
+    // Stream operator for this config
+    friend std::ostream &operator<<(std::ostream &output, const Config &c)
+    {
+      output << "guidance::Config { " << std::endl
+           << "spin_rate_hz: " << c.spin_rate_hz << std::endl
+           << "}" << std::endl;
+      return output;
+    }
+  };
 
-  return 0;
-}
+} // guidance
