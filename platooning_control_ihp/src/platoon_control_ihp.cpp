@@ -32,8 +32,6 @@ namespace platoon_control_ihp
 
         PlatooningControlIHPPluginConfig config;
 
-        pnh_->param<double>("timeHeadway", config.timeHeadway, config.timeHeadway);
-        pnh_->param<double>("standStillHeadway", config.standStillHeadway, config.standStillHeadway);
         pnh_->param<double>("maxAccel", config.maxAccel, config.maxAccel);
         pnh_->param<double>("Kp", config.Kp, config.Kp);
         pnh_->param<double>("Kd", config.Kd, config.Kd);
@@ -66,8 +64,8 @@ namespace platoon_control_ihp
         current_twist_sub_ = nh_->subscribe<geometry_msgs::TwistStamped>("current_velocity", 1, &PlatoonControlIHPPlugin::currentTwist_cb, this);
 
         // Platoon Info Subscriber
-        // TODO: consider changing the topic name so it is specific to ihp plugins (not sure if it is necessary)
-        platoon_info_sub_ = nh_->subscribe<cav_msgs::PlatooningInfo>("platoon_info", 1, &PlatoonControlIHPPlugin::platoonInfo_cb, this);
+        // topic name so it is specific to ihp plugins
+        platoon_info_sub_ = nh_->subscribe<cav_msgs::PlatooningInfo>("platoon_info_ihp", 1, &PlatoonControlIHPPlugin::platoonInfo_cb, this);
 
 		// Control Publisher
 		twist_pub_ = nh_->advertise<geometry_msgs::TwistStamped>("twist_raw", 5, true);

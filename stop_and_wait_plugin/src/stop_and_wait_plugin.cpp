@@ -40,7 +40,7 @@
 #include <lanelet2_core/geometry/LineString.h>
 #include <carma_wm_ros2/CARMAWorldModel.hpp>
 #include <math.h>
-#include <std_msgs/Float64.h>
+#include <std_msgs/msg/float64.hpp>
 #include <math.h>
 
 using oss = std::ostringstream;
@@ -203,7 +203,7 @@ std::vector<carma_planning_msgs::msg::TrajectoryPlanPoint> StopandWait::trajecto
     tpp.x = points[i].x();
     tpp.y = points[i].y();
     tpp.yaw = yaws[i];
-
+    tpp.planner_plugin_name = plugin_name_;
     tpp.controller_plugin_name = "default";
  
     traj.push_back(tpp);
@@ -376,6 +376,7 @@ std::vector<carma_planning_msgs::msg::TrajectoryPlanPoint> StopandWait::compose_
   {
     carma_planning_msgs::msg::TrajectoryPlanPoint new_point = traj.back();
     new_point.target_time = rclcpp::Time(new_point.target_time) + rclcpp::Duration(config_.stop_timestep * 1e9);
+    new_point.planner_plugin_name = plugin_name_;
     traj.push_back(new_point);
   }
 

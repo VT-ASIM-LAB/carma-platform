@@ -50,6 +50,9 @@ else
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-messenger.git --branch develop
 fi
 
+# Get humble branch of message filters which supports template Node arguments (foxy version supports rclcpp::Node only)
+git clone https://github.com/usdot-fhwa-stol/carma-message-filters.git --branch develop
+
 # add astuff messages
 # NOTE: The ibeo_msgs package is ignored because on build the cmake files in that package run a sed command 
 #       which can make them incompatible with a new ros version after a source switch
@@ -63,3 +66,8 @@ cd ibeo_msgs
 echo "" > COLCON_IGNORE
 cd ../astuff_sensor_msgs
 echo "" > COLCON_IGNORE
+
+cd ../
+
+#rosbridge_suite is a ROS meta-package including all the rosbridge packages.
+git clone https://github.com/usdot-fhwa-stol/rosbridge_suite --branch ros2

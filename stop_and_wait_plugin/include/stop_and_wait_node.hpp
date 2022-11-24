@@ -40,7 +40,7 @@
 #include <lanelet2_core/geometry/LineString.h>
 #include <carma_wm_ros2/CARMAWorldModel.hpp>
 #include <math.h>
-#include <std_msgs/Float64.h>
+#include <std_msgs/msg/float64.hpp>
 #include <carma_planning_msgs/msg/stop_and_wait_maneuver.hpp>
 #include <carma_wm_ros2/Geometry.hpp>
 #include <carma_planning_msgs/msg/trajectory_plan_point.hpp>
@@ -60,7 +60,6 @@ private:
 
     std::string version_id_;
     std::string plugin_name_;
-    carma_wm::WorldModelConstPtr wm_;
 
 public:
   
@@ -73,6 +72,12 @@ public:
      * \brief This method should be used to load parameters and will be called on the configure state transition.
      */ 
     carma_ros2_utils::CallbackReturn on_configure_plugin();
+
+    /**
+     * \brief Callback for dynamic parameter updates
+     */
+    rcl_interfaces::msg::SetParametersResult 
+    parameter_update_callback(const std::vector<rclcpp::Parameter> &parameters);
 
     ////
     // Overrides

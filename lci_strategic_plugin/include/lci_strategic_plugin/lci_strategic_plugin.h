@@ -186,21 +186,13 @@ public:
   ////////// VARIABLES ///////////
 
   TurnDirection intersection_turn_direction_ = TurnDirection::Straight;
-  bool approaching_light_controlled_interction_ = false;
+  bool approaching_light_controlled_intersection_ = false; 
 
   // CARMA Streets Variakes
   // timestamp for msg received from carma streets
   unsigned long long street_msg_timestamp_ = 0;
-  // scheduled stop time
-  unsigned long long scheduled_stop_time_ = 0;
   // scheduled enter time
   unsigned long long scheduled_enter_time_ = 0;
-  // scheduled depart time
-  unsigned long long scheduled_depart_time_ = 0;
-  // scheduled latest depart position
-  uint32_t scheduled_departure_position_ = std::numeric_limits<uint32_t>::max();
-  // flag to show if the vehicle is allowed in intersection
-  bool is_allowed_int_ = false;
   
   //BSM
   std::string bsm_id_ = "default_bsm_id";
@@ -338,7 +330,7 @@ private:
    *
    * \return A transift maneuver message specifically designed for light controlled intersection tactical plugin
    */
-  cav_msgs::Maneuver composeTrajectorySmoothingManeuverMessage(double start_dist, double end_dist, double start_speed,
+  cav_msgs::Maneuver composeTrajectorySmoothingManeuverMessage(double start_dist, double end_dist, const std::vector<lanelet::ConstLanelet>& crossed_lanelets, double start_speed,
                                                        double target_speed, ros::Time start_time, ros::Time end_time,
                                                        const TrajectoryParams& tsp) const;
   
@@ -421,7 +413,7 @@ private:
                                         double current_state_speed,
                                         const lanelet::CarmaTrafficSignalPtr& traffic_light,
                                         const lanelet::ConstLanelet& entry_lanelet, const lanelet::ConstLanelet& exit_lanelet, 
-                                        double traffic_light_down_track, const TrajectoryParams& ts_params);
+                                        double traffic_light_down_track, const TrajectoryParams& ts_params, bool is_certainty_check_optional);
   /**
    * \brief This function returns valid maneuvers if the vehicle is able to utilize trajectory smoothing parameters to go through the intersection with certainty
    *        It utilizes canMakeWithCertainty function to determine if it is able to make it. Corresponds to TSCase 1-7
@@ -748,7 +740,7 @@ private:
   //! Cache variables for storing the current intersection state between state machine transitions
   boost::optional<double> intersection_speed_;
   boost::optional<double> intersection_end_downtrack_;
-  std::string light_controlled_intersection_strategy_ = "Carma/light_controlled_intersection";
+  std::string light_controlled_intersection_strategy_ = "Carma/signalized_intersection"; // Strategy carma-streets is sending. Could be more verbose but needs to be changed on both ends
   
   // TF listenser
   tf2_ros::Buffer tf2_buffer_;
