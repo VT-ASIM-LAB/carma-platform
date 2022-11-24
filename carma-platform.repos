@@ -59,11 +59,15 @@ repositories:
     type: git
     url: git@github.com:VT-ASIM-LAB/inertiallabs_gnss_driver.git
     version: master
-  src/gstreamer_camera_driver:
+  src/lucid_camera_driver:
     type: git
-    url: git@github.com:VT-ASIM-LAB/gstreamer_camera_driver.git
+    url: git@github.com:VT-ASIM-LAB/lucid_camera_driver.git
     version: master
   src/ouster_lidar_driver:
     type: git
     url: git@github.com:VT-ASIM-LAB/ouster_lidar_driver.git
+    version: master
+  src/continental_radar_driver:
+    type: git
+    url: git@github.com:VT-ASIM-LAB/continental_radar_driver.git
     version: master
