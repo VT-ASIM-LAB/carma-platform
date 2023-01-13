@@ -348,7 +348,7 @@ def generate_launch_description():
                 ],
                 parameters = [
                     {'loop_rate':30.0},
-                    {'use_twist': True}
+                    {'use_twist': True},
                     {'use_decision_maker':False}
                 ]
             )
