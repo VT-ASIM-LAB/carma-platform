@@ -67,7 +67,10 @@ def generate_launch_description():
         get_package_share_directory('sci_strategic_plugin'), 'config/parameters.yaml')     
 
     lci_strategic_plugin_file_path = os.path.join(
-        get_package_share_directory('lci_strategic_plugin'), 'config/parameters.yaml')    
+        get_package_share_directory('lci_strategic_plugin'), 'config/parameters.yaml')   
+
+    stop_and_dwell_strategic_plugin_container_file_path = os.path.join(
+        get_package_share_directory('stop_and_dwell_strategic_plugin'), 'config/parameters.yaml')  
     
     yield_plugin_file_path = os.path.join(
         get_package_share_directory('yield_plugin'), 'config/parameters.yaml')        
@@ -84,6 +87,8 @@ def generate_launch_description():
     env_log_levels = EnvironmentVariable('CARMA_ROS_LOGGING_CONFIG', default_value='{ "default_level" : "WARN" }')
 
     pure_pursuit_tuning_parameters = [vehicle_calibration_dir, "/pure_pursuit/calibration.yaml"]
+
+    lci_plugin_calibration_params = [vehicle_calibration_dir, "/identifiers/UniqueVehicleParams.yaml"]
 
     carma_inlanecruising_plugin_container = ComposableNodeContainer(
         package='carma_ros2_utils',
@@ -172,6 +177,7 @@ def generate_launch_description():
                     ("route", [ EnvironmentVariable('CARMA_GUIDE_NS', default_value=''), "/route" ] ),
                     ("state", [ EnvironmentVariable('CARMA_GUIDE_NS', default_value=''), "/state" ] ),
                     ("approaching_erv_status", [ EnvironmentVariable('CARMA_GUIDE_NS', default_value=''), "/approaching_erv_status" ] ),
+                    ("hazard_light_status", [ EnvironmentVariable('CARMA_INTR_NS', default_value=''), "/hazard_light_status" ] ),
                     ("current_velocity", [ EnvironmentVariable('CARMA_INTR_NS', default_value=''), "/vehicle/twist" ] ),
                     ("incoming_bsm", [ EnvironmentVariable('CARMA_MSG_NS', default_value=''), "/incoming_bsm" ] ),
                     ("georeference", [ EnvironmentVariable('CARMA_LOCZ_NS', default_value=''), "/map_param_loader/georeference" ] ),
@@ -282,7 +288,8 @@ def generate_launch_description():
                 ],
                 parameters=[
                     lci_strategic_plugin_file_path,
-                    vehicle_config_param_file
+                    vehicle_config_param_file,
+                    lci_plugin_calibration_params
                 ]
             ),
         ]
@@ -519,12 +526,66 @@ def generate_launch_description():
         ]
     )
 
+    carma_stop_and_dwell_strategic_plugin_container = ComposableNodeContainer(
+        package='carma_ros2_utils',
+        name='carma_stop_and_dwell_strategic_plugin_container',
+        executable='carma_component_container_mt',
+        namespace=GetCurrentNamespace(),
+        composable_node_descriptions=[
+            ComposableNode(
+                package='stop_and_dwell_strategic_plugin',
+                plugin='stop_and_dwell_strategic_plugin::StopAndDwellStrategicPlugin',
+                name='stop_and_dwell_strategic_plugin',
+                extra_arguments=[
+                    {'use_intra_process_comms': True}, 
+                    {'--log-level' : GetLogLevel('stop_and_dwell_strategic_plugin', env_log_levels) }
+                ],
+                remappings = [
+                    ("semantic_map", [ EnvironmentVariable('CARMA_ENV_NS', default_value=''), "/semantic_map" ] ),
+                    ("map_update", [ EnvironmentVariable('CARMA_ENV_NS', default_value=''), "/map_update" ] ),
+                    ("roadway_objects", [ EnvironmentVariable('CARMA_ENV_NS', default_value=''), "/roadway_objects" ] ),
+                    ("incoming_spat", [ EnvironmentVariable('CARMA_MSG_NS', default_value=''), "/incoming_spat" ] ),
+                    ("plugin_discovery", [ EnvironmentVariable('CARMA_GUIDE_NS', default_value=''), "/plugin_discovery" ] ),
+                    ("route", [ EnvironmentVariable('CARMA_GUIDE_NS', default_value=''), "/route" ] ),
+                    ("maneuver_plan", [ EnvironmentVariable('CARMA_GUIDE_NS', default_value=''), "/final_maneuver_plan" ] ),
+                    ("state", [ EnvironmentVariable('CARMA_GUIDE_NS', default_value=''), "/state" ] ),
+                    ("current_pose", [ EnvironmentVariable('CARMA_LOCZ_NS', default_value=''), "/current_pose" ] ),
+                ],
+                parameters=[
+                    stop_and_dwell_strategic_plugin_container_file_path,
+                    vehicle_config_param_file
+                ]
+            ),
+        ]
+    )
+
+    intersection_transit_maneuvering_container = ComposableNodeContainer(
+        package='carma_ros2_utils',
+        name='intersection_transit_maneuvering_container',
+        executable='carma_component_container_mt',
+        namespace=GetCurrentNamespace(),
+        composable_node_descriptions=[
+            ComposableNode(
+                package='intersection_transit_maneuvering',
+                plugin='intersection_transit_maneuvering::IntersectionTransitManeuveringNode',
+                name='intersection_transit_maneuvering',
+                extra_arguments=[
+                    {'use_intra_process_comms': True}, 
+                    {'--log-level' : GetLogLevel('intersection_transit_maneuvering', env_log_levels) }
+                ],
+                remappings = [],
+                parameters=[]     
+            ),
+        ]
+    )
+
     return LaunchDescription([    
         carma_inlanecruising_plugin_container, 
         carma_route_following_plugin_container, 
         carma_approaching_emergency_vehicle_plugin_container,
         carma_stop_and_wait_plugin_container, 
         carma_sci_strategic_plugin_container, 
+        carma_stop_and_dwell_strategic_plugin_container,
         carma_lci_strategic_plugin_container, 
         carma_stop_controlled_intersection_tactical_plugin_container, 
         carma_cooperative_lanechange_plugins_container, 
@@ -532,5 +593,7 @@ def generate_launch_description():
         carma_light_controlled_intersection_plugins_container, 
         carma_pure_pursuit_wrapper_container, 
         #platooning_strategic_plugin_container, 
-        platooning_tactical_plugin_container
+        platooning_tactical_plugin_container,
+        intersection_transit_maneuvering_container
+
     ])
